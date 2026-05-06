@@ -1,38 +1,69 @@
 # DFQ
 
-My first GitHub project: a Codex skill that helps create a custom desktop pet, install it, and make it auto-wake when Codex starts.
+这是我的第一个 GitHub 项目：一个 Codex skill，用来帮用户生成自己的 Codex 桌面小宠物，并在 macOS 上设置为每次启动 Codex 自动唤醒。
 
-The skill lives in [`hatch-pet-autowake/`](hatch-pet-autowake/).
+真正的 skill 放在 [`hatch-pet-autowake/`](hatch-pet-autowake/) 目录里。
 
-## Install
+## 一句话安装
 
-Send this to Codex:
+把下面这句话发给 Codex：
 
 ```text
 $skill-installer install from https://github.com/Mmmmarvin/DFQ/tree/main/hatch-pet-autowake
 ```
 
-Then restart Codex so it can load the newly installed skill.
+安装完成后，需要重启 Codex。重启后 Codex 才能识别这个新 skill。
 
-## Important
+## 重要说明
 
-Installing this skill only teaches Codex the workflow. It does not immediately create a pet or enable auto-wake by itself.
+上面的安装命令只是在 Codex 里安装这个 skill。它不会立刻生成宠物，也不会立刻开启自动唤醒。
 
-After restart, ask Codex something like:
+完整流程是：
+
+1. 先把安装命令发给 Codex。
+2. 安装完成后重启 Codex。
+3. 准备并上传 3-6 张宠物参考图。
+4. 再对 Codex 说：
 
 ```text
 $hatch-pet-autowake 请根据我上传的参考图生成一个 Codex 小宠物，安装它，并设置为每次启动 Codex 自动唤醒
 ```
 
-The auto-wake step runs after the pet package exists. On macOS, the skill installs a LaunchAgent that keeps the selected custom pet visible after Codex restarts.
+自动唤醒会在宠物生成并安装完成后配置，因为它需要知道最终宠物的 `pet-id`。在 macOS 上，这个 skill 会安装一个 LaunchAgent，让选中的自定义宠物在 Codex 重启后自动显示。
 
-## What Users Should Prepare
+## 为什么需要参考图
 
-For best results, upload 3-6 reference images:
+建议上传 3-6 张参考图：
 
-- Front or three-quarter view.
-- Side view if markings or accessories are asymmetric.
-- Face/detail images for eyes, ears, colors, markings, or props.
-- One image that captures the pet's personality or typical pose.
+- 正面或三分之四角度的清晰图。
+- 如果宠物有不对称花纹、饰品、尾巴形状，最好提供侧面图。
+- 眼睛、耳朵、毛色、花纹、道具等细节图。
+- 一张能体现宠物性格或常见姿态的图。
 
-Reference images matter because Codex pets are animated. The generator needs one base image plus 9 animation states, and references help keep the same face, colors, markings, silhouette, and props across every state.
+参考图很重要，因为 Codex 小宠物不是一张静态图。它需要先生成一个基础形象，再生成 9 组动作/表情。参考图越清楚，最终每个动作里的脸型、颜色、轮廓、花纹和道具就越容易保持一致。
+
+没有参考图也可以只靠文字生成，但更容易出现“每个动作像不同角色”的问题，可能需要更多修复轮次。
+
+## 小宠物的 9 个动作/表情
+
+Codex 小宠物使用固定的 `8 x 9` 精灵图，每个格子是 `192 x 208` 像素。9 行分别对应 9 个状态：
+
+| 行 | 状态 | 帧数 | 触发条件或用途 |
+| ---: | --- | ---: | --- |
+| 0 | `idle` | 6 | 默认待机状态，也作为减少动画时的静态兜底。 |
+| 1 | `running-right` | 8 | 拖动悬浮宠物向右移动时触发。 |
+| 2 | `running-left` | 8 | 拖动悬浮宠物向左移动时触发。 |
+| 3 | `waving` | 4 | 预留的打招呼/吸引注意动作；当前检查到的 Codex 版本里暂未发现自动触发，但图集仍需要这一行。 |
+| 4 | `jumping` | 5 | 鼠标悬停或直接互动宠物时触发。 |
+| 5 | `failed` | 8 | Codex 遇到阻塞或失败通知时触发。 |
+| 6 | `waiting` | 6 | Codex 需要用户输入时触发。 |
+| 7 | `running` | 6 | Codex 正在运行、思考或调用工具时触发。 |
+| 8 | `review` | 6 | Codex 完成输出，等待用户查看时触发。 |
+
+即使某些状态很少出现，也需要生成完整 9 行，因为 Codex 读取的是固定布局。
+
+## 适用范围
+
+- 生成宠物依赖 Codex 已有的 `$hatch-pet` 和 `$imagegen` 能力。
+- 自动唤醒目前是 macOS 方案，因为它使用 LaunchAgent。
+- Windows 或 Linux 用户仍可用生成和安装宠物部分，但自动唤醒脚本需要另行适配。
