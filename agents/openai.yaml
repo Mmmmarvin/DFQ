@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hatch Pet Autowake"
+  short_description: "Create a reference-guided Codex pet and make it auto-wake on startup."
+  default_prompt: "Create a custom Codex pet from my reference images, explain the 9 pet animation states, install it, rename it, and make it auto-wake when Codex starts."
