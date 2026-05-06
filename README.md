@@ -1,75 +1,38 @@
-# Hatch Pet Autowake
+# DFQ
 
-Create a Codex custom desktop pet from reference images, install it, rename it, and make it auto-wake when Codex starts.
+My first GitHub project: a Codex skill that helps create a custom desktop pet, install it, and make it auto-wake when Codex starts.
 
-This skill was extracted from the end-to-end creation of a custom pet named `小椰`: generation, packaging, image export, pet renaming, selecting the custom pet, and fixing startup auto-wake on macOS.
+The skill lives in [`hatch-pet-autowake/`](hatch-pet-autowake/).
 
-## What It Does
+## Install
 
-- Guides the user to upload useful pet reference images.
-- Generates the pet through the existing Codex `$hatch-pet` workflow.
-- Installs or renames the final pet package under `$CODEX_HOME/pets/<id>`.
-- Sets the pet as the selected Codex avatar.
-- Installs a macOS LaunchAgent that keeps the Codex pet overlay open after app restarts.
-- Exports a tidy copy of generated pet images when requested.
-
-## Recommended References
-
-Ask users to provide 3-6 reference images when possible:
-
-- A clear front or three-quarter view.
-- A side view, especially for asymmetric markings or accessories.
-- Face/detail images for eyes, ears, markings, palette, or props.
-- A pose or personality image.
-
-References are important because the pet is not a single picture. Codex needs a base image plus 9 animation rows. Good references keep the face, colors, silhouette, markings, and props consistent across every row.
-
-Text-only generation is possible, but identity drift is more likely and repair rounds may be needed.
-
-## Animation States
-
-Codex pets use a fixed `8 x 9` spritesheet. Each cell is `192 x 208` pixels. The 9 rows are:
-
-| Row | State | Frames | Trigger or use |
-| ---: | --- | ---: | --- |
-| 0 | `idle` | 6 | Default resting state and reduced-motion fallback. |
-| 1 | `running-right` | 8 | Dragging the floating pet to the right. |
-| 2 | `running-left` | 8 | Dragging the floating pet to the left. |
-| 3 | `waving` | 4 | Reserved greeting/attention row; no automatic trigger was found in the inspected Codex build. |
-| 4 | `jumping` | 5 | Pointer hover or direct interaction with the pet. |
-| 5 | `failed` | 8 | Blocked or failed notification. |
-| 6 | `waiting` | 6 | Codex needs user input. |
-| 7 | `running` | 6 | Codex is running, thinking, or calling tools. |
-| 8 | `review` | 6 | Completed output is ready to review. |
-
-All rows should still be generated because the app expects the fixed atlas layout.
-
-## Install From GitHub
-
-After this folder is pushed to GitHub, users can install it with Codex's skill installer from a GitHub repo path:
+Send this to Codex:
 
 ```text
-$skill-installer install from https://github.com/<owner>/<repo>/tree/main
+$skill-installer install from https://github.com/Mmmmarvin/DFQ/tree/main/hatch-pet-autowake
 ```
 
-If the skill is placed inside a subfolder, install that subfolder instead:
+Then restart Codex so it can load the newly installed skill.
+
+## Important
+
+Installing this skill only teaches Codex the workflow. It does not immediately create a pet or enable auto-wake by itself.
+
+After restart, ask Codex something like:
 
 ```text
-$skill-installer install from https://github.com/<owner>/<repo>/tree/main/path/to/hatch-pet-autowake
+$hatch-pet-autowake 请根据我上传的参考图生成一个 Codex 小宠物，安装它，并设置为每次启动 Codex 自动唤醒
 ```
 
-Restart Codex after installing new skills.
+The auto-wake step runs after the pet package exists. On macOS, the skill installs a LaunchAgent that keeps the selected custom pet visible after Codex restarts.
 
-## Files
+## What Users Should Prepare
 
-- `SKILL.md`: the Codex skill instructions.
-- `agents/openai.yaml`: user-facing skill metadata.
-- `scripts/set-pet-name.py`: rename or normalize an installed custom pet and select it.
-- `scripts/install-autowake.py`: install the macOS auto-wake helper.
-- `scripts/export-pet-images.py`: collect generated images and installed pet files into a tidy export folder.
-- `references/animation-states.md`: detailed row, timing, and trigger notes.
-- `references/xiaoye-case-study.md`: implementation notes from the original pet.
+For best results, upload 3-6 reference images:
 
-## Notes
+- Front or three-quarter view.
+- Side view if markings or accessories are asymmetric.
+- Face/detail images for eyes, ears, colors, markings, or props.
+- One image that captures the pet's personality or typical pose.
 
-Auto-wake is macOS-focused because it uses LaunchAgents. The generation workflow depends on Codex's existing `$hatch-pet` and `$imagegen` skills.
+Reference images matter because Codex pets are animated. The generator needs one base image plus 9 animation states, and references help keep the same face, colors, markings, silhouette, and props across every state.
